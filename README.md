@@ -2,7 +2,7 @@
 
 soc analyst · detection engineer · purple team
 
-→ [harilal.root.sx](https://harilal.root.sx) *(or your chosen domain)*
+→ [hari.root.sx](https://hari.root.sx) *(or your chosen domain)*
 
 ---
 
