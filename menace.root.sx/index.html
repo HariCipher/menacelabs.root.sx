@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harilal P — SOC Analyst</title>
+  <meta name="title" content="Harilal P — SOC Analyst">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; border: 0; box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; }
+    ol, ul { list-style: none; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── tokens ── */
+    :root {
+      --bg: #080808;
+      --fg: #e8e4dc;
+      --dim: rgba(232,228,220,0.45);
+      --dimmer: rgba(232,228,220,0.2);
+      --green: #1a7a4a;
+      --green-dim: rgba(26,122,74,0.15);
+      --border: rgba(232,228,220,0.08);
+      --border-mid: rgba(232,228,220,0.12);
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --disp: 'Bebas Neue', cursive;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html {
+      font-size: 0.694vw;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+    @media (max-width: 900px) { html { font-size: 1.8vw; } }
+    @media (max-width: 500px) { html { font-size: 2.8vw; } }
+
+    body {
+      font-family: var(--sans);
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--fg);
+      cursor: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    body.ready { opacity: 1; }
+
+    /* ── cursor ── */
+    .cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--fg);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s var(--ease), height 0.2s var(--ease);
+    }
+    .cursor.follower {
+      width: 28px; height: 28px;
+      background: transparent;
+      border: 1px solid rgba(232,228,220,0.3);
+      transition: width 0.35s var(--ease), height 0.35s var(--ease), border-color 0.3s;
+    }
+    body:has(a:hover) .cursor.follower,
+    body:has(button:hover) .cursor.follower {
+      width: 48px; height: 48px;
+      border-color: rgba(232,228,220,0.6);
+    }
+
+    /* ── nav ── */
+    .home__nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2.4rem 4rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(16px);
+    }
+    .home__nav__left { display: flex; align-items: center; gap: 4rem; }
+    .nav__name {
+      font-family: var(--disp);
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--fg);
+    }
+    .nav__folio {
+      font-family: var(--mono);
+      font-size: 1rem;
+      color: var(--dim);
+      line-height: 1.6;
+      letter-spacing: 0.03em;
+    }
+    .home__nav__right { display: flex; align-items: center; gap: 3rem; }
+    .nav__availability {
+      font-family: var(--mono);
+      font-size: 1rem;
+      color: var(--green);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .nav__availability::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .c-button { cursor: none; background: none; border: none; font-family: inherit; }
+    .c-link { display: inline-block; overflow: hidden; }
+    .c-link__inner {
+      display: flex; flex-direction: column;
+      transition: transform 0.4s var(--ease);
+    }
+    .c-button:hover .c-link__inner,
+    a:hover .c-link__inner { transform: translateY(-100%); }
+    .c-link__animated { color: var(--green); }
+
+    .nav__button {
+      font-family: var(--mono);
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg);
+      border: 1px solid var(--border-mid) !important;
+      padding: 1rem 2rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nav__button:hover { border-color: var(--fg) !important; background: rgba(232,228,220,0.05); }
+
+    .hide-mobile { display: block; }
+    .hide-desktop { display: none; }
+    @media (max-width: 768px) {
+      .hide-mobile { display: none; }
+      .hide-desktop { display: block; }
+      .home__nav { padding: 2rem 2.5rem; }
+      .home__nav__left { gap: 0; }
+      .home__nav__right { gap: 1.5rem; }
+    }
+
+    /* ── hero ── */
+    .home__hero {
+      min-height: 100vh;
+      display: flex; align-items: flex-end;
+      padding: 0 4rem 5rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero__bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+    .hero__bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 20%, var(--bg) 100%);
+    }
+    .hero__title { width: 100%; position: relative; z-index: 2; }
+
+    /* letter hover effect */
+    .hero__hover {
+      display: inline-block;
+      transition: transform 0.3s var(--ease), color 0.3s;
+      cursor: default;
+    }
+    .hero__hover:hover { transform: translateY(-6px); color: var(--green); }
+
+    h1 {
+      font-family: var(--disp);
+      font-size: clamp(6rem, 18vw, 18rem);
+      line-height: 0.85;
+      color: var(--fg);
+    }
+    .overflow { overflow: hidden; }
+
+    .hero__title__top {
+      display: flex; align-items: center; gap: 3rem;
+      overflow: hidden;
+    }
+    .hero__title__left {
+      display: inline-flex;
+      transform: translateX(-120px);
+      transition: transform 1.2s var(--ease);
+    }
+    .hero__title__right {
+      display: inline-flex;
+      transform: translateX(120px);
+      transition: transform 1.2s var(--ease);
+    }
+    .hero__title__dash {
+      font-family: var(--disp);
+      font-size: clamp(3rem, 6vw, 6rem);
+      color: var(--green);
+      letter-spacing: -0.05em;
+    }
+    body.ready .hero__title__left,
+    body.ready .hero__title__right { transform: translateX(0); }
+
+    .hero__title__bottom { display: flex; align-items: flex-end; gap: 4rem; }
+    .bottom__left { overflow: hidden; }
+    .bottom__left h1 {
+      transform: translateY(100%);
+      transition: transform 1.2s 0.2s var(--ease);
+    }
+    body.ready .bottom__left h1 { transform: translateY(0); }
+
+    .bottom__right {
+      padding-bottom: 1.5rem;
+      max-width: 46rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.9s 0.5s, transform 0.9s 0.5s var(--ease);
+    }
+    body.ready .bottom__right { opacity: 1; transform: translateY(0); }
+
+    .hero__paragraph {
+      font-size: 1.5rem;
+      color: var(--dim);
+      line-height: 1.75;
+      margin-bottom: 3rem;
+    }
+    .hero__paragraph .first-word { color: var(--green); font-weight: 500; }
+    .hero__paragraph span { color: var(--fg); }
+
+    .hero__scroll {
+      display: flex; align-items: center; gap: 1.2rem;
+      font-family: var(--mono);
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: var(--dimmer);
+      text-transform: uppercase;
+    }
+
+    /* ── line divider (aruxiee's signature element) ── */
+    .home__projects__line {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border-top: 1px solid var(--border-mid);
+    }
+    .home__projects__line span {
+      display: block;
+      width: 0;
+      height: 1px;
+      background: var(--green);
+      transition: width 1.4s var(--ease);
+    }
+    .home__projects__line.animated span { width: 100%; }
+
+    /* ── projects section ── */
+    .home__projects { padding: 0 4rem; }
+
+    .home__projects__project {
+      display: grid;
+      grid-template-columns: 28rem 1fr auto;
+      align-items: center;
+      gap: 4rem;
+      padding: 3.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 900px) {
+      .home__projects { padding: 0 2.5rem; }
+      .home__projects__project { grid-template-columns: 1fr; gap: 2rem; }
+    }
+
+    .home__projects__project__label .label__inner {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      color: var(--dimmer);
+      line-height: 1.7;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .label__inner.label-1 { color: var(--dim); }
+
+    .home__projects__project__link { display: block; flex: 1; }
+    .home__projects__project__title {
+      font-family: var(--disp);
+      font-size: clamp(2.5rem, 5vw, 5.5rem);
+      line-height: 1;
+      overflow: hidden;
+    }
+    .title__main {
+      display: block;
+      position: relative;
+      transition: transform 0.6s var(--ease);
+    }
+    .home__projects__project__link:hover .title__main { transform: translateX(12px); color: var(--green); }
+    .title__main.left:hover { transform: translateX(-12px); }
+
+    .slide-up {
+      position: absolute; top: 0; left: 0;
+      transform: translateY(100%);
+      color: var(--green);
+      pointer-events: none;
+    }
+
+    .project__link .c-button {
+      font-family: var(--mono);
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dimmer);
+      border: 1px solid var(--border-mid);
+      padding: 1rem 1.8rem;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .project__link .c-button:hover { color: var(--fg); border-color: var(--fg); }
+    .share-icon { display: inline-block; vertical-align: middle; margin-left: 0.4rem; }
+
+    /* ── interstitial content ── */
+    .home__content {
+      padding: 8rem 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .home__content__title {
+      font-family: var(--disp);
+      font-size: clamp(3rem, 5vw, 5rem);
+      color: var(--fg);
+      line-height: 1;
+      margin-bottom: 2.5rem;
+    }
+    .home__content__desc {
+      font-size: 1.5rem;
+      color: var(--dim);
+      line-height: 1.8;
+      max-width: 70rem;
+    }
+    .home__content__desc a {
+      color: var(--fg);
+      border-bottom: 1px solid var(--border-mid);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .home__content__desc a:hover { color: var(--green); border-color: var(--green); }
+
+    /* ── awards / certs ── */
+    .home__awards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 768px) { .home__awards { grid-template-columns: 1fr; } }
+
+    .home__awards__left {
+      padding: 6rem 4rem;
+      border-right: 1px solid var(--border);
+    }
+    @media (max-width: 768px) { .home__awards__left { border-right: none; border-bottom: 1px solid var(--border); padding: 4rem 2.5rem; } }
+
+    .awards__title {
+      font-family: var(--disp);
+      font-size: clamp(3rem, 5vw, 5rem);
+      color: var(--fg);
+      line-height: 1;
+      margin-bottom: 4rem;
+    }
+    .home__awards__table { display: flex; flex-direction: column; }
+    .awards__item {
+      font-family: var(--mono);
+      font-size: 1.2rem;
+      color: var(--dim);
+      padding: 1.4rem 0;
+      border-top: 1px solid var(--border);
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), color 0.2s;
+    }
+    .awards__item.visible { opacity: 1; transform: translateY(0); }
+    .awards__item:hover { color: var(--fg); }
+
+    .home__awards__right {
+      padding: 6rem 4rem;
+      display: flex; flex-direction: column; gap: 5rem;
+    }
+    @media (max-width: 768px) { .home__awards__right { padding: 4rem 2.5rem; } }
+
+    /* ── contact ── */
+    .home__contact {
+      padding: 6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .home__contact__desc {
+      font-size: 1.5rem;
+      color: var(--dim);
+      line-height: 1.8;
+      max-width: 60rem;
+      padding: 0 4rem 4rem;
+    }
+
+    .line-wrapper { padding: 0; }
+
+    .marquee { overflow: hidden; }
+    .marquee__wrap { display: block; }
+    .marquee__inner {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 18s linear infinite;
+    }
+    .inner-span {
+      font-family: var(--disp);
+      font-size: clamp(3.5rem, 6vw, 7rem);
+      padding: 2rem 3rem;
+      color: var(--fg);
+      display: block;
+    }
+    .marquee__wrap:hover .marquee__inner { animation-play-state: paused; }
+    .marquee__wrap:hover .inner-span { color: var(--green); }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    .home__contact__email {
+      display: flex; align-items: center; gap: 2rem;
+      padding: 4rem;
+    }
+    .email {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      color: var(--fg);
+      letter-spacing: 0.04em;
+      cursor: none;
+      background: none; border: none;
+      border-bottom: 1px solid var(--border-mid);
+      padding-bottom: 0.3rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .email:hover { color: var(--green); border-color: var(--green); }
+    .to-copy {
+      font-family: var(--mono);
+      font-size: 1rem;
+      color: var(--dimmer);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .home__contact__email:hover .to-copy { opacity: 1; }
+
+    /* ── footer ── */
+    .home__footer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 2.5rem 4rem;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 768px) {
+      .home__footer { grid-template-columns: 1fr; gap: 1.5rem; padding: 2.5rem; }
+    }
+
+    .home__footer__center { text-align: center; }
+    .footer__links { display: flex; gap: 0; }
+    .link__flex { }
+    .link__flex__inner {
+      display: flex; gap: 3rem;
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dimmer);
+    }
+    .link__flex__inner.second { margin-top: 0.8rem; }
+    .link__flex__inner a { transition: color 0.2s; }
+    .link__flex__inner a:hover { color: var(--fg); }
+
+    .home__footer__left {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      color: var(--dimmer);
+      letter-spacing: 0.08em;
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .place { text-transform: uppercase; }
+    .time { font-size: 1.3rem; }
+    .flash { animation: blink 1s step-end infinite; }
+
+    .home__footer__right {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      color: var(--dimmer);
+      letter-spacing: 0.06em;
+    }
+    .home__footer__right a { transition: color 0.2s; }
+    .home__footer__right a:hover { color: var(--fg); }
+
+    /* ── mobile title ── */
+    h1.mobile { display: none; }
+    @media (max-width: 768px) {
+      h1.mobile { display: block; font-size: 14vw; padding: 0 2.5rem 4rem; }
+      .desktop { display: none; }
+      .home__hero { padding: 0; align-items: flex-end; }
+      .bottom__right { display: none; }
+    }
+
+    /* ── scroll fade-in ── */
+    [data-fade-in] {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    [data-fade-in].visible { opacity: 1; transform: translateY(0); }
+
+    /* ── copied toast ── */
+    .toast {
+      position: fixed;
+      bottom: 3rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--green);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 1rem 2rem;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+
+<body>
+  <div class="cursor" id="cur"></div>
+  <div class="cursor follower" id="curR"></div>
+  <div class="toast" id="toast">Copied to clipboard</div>
+
+  <main class="home">
+
+    <!-- NAV -->
+    <nav class="home__nav">
+      <div class="home__nav__left">
+        <div class="nav__name">Harilal<br>P.</div>
+        <div class="nav__folio hide-mobile">
+          SOC Analyst · Detection Engineering<br>
+          Gardiyan SST (Turkey) / 2025 — 2026
+        </div>
+      </div>
+      <div class="home__nav__right">
+        <div class="nav__folio hide-desktop">
+          SOC Analyst<br>Open to Roles
+        </div>
+        <div class="nav__availability">Open to roles</div>
+        <button class="nav__button c-button contact-scroll">
+          <span class="c-link">
+            <span class="c-link__inner">
+              <span>contact</span>
+              <span class="c-link__animated">contact</span>
+            </span>
+          </span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="home__hero">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="hero__title">
+
+        <h1 class="mobile">SOC<br>—— ANL<br>ENGINEER</h1>
+
+        <h1 class="hero__title__top overflow desktop">
+          <div class="hero__title__top">
+            <span class="hero__title__left">
+              <span class="hero__hover">S</span><span class="hero__hover">O</span><span class="hero__hover">C</span>
+            </span>
+            <span class="hero__title__dash desktop">——</span>
+            <span class="hero__title__right">
+              <span class="hero__hover">A</span><span class="hero__hover">N</span><span class="hero__hover">L</span>
+            </span>
+          </div>
+        </h1>
+
+        <span class="hero__title__bottom overflow">
+          <div class="hero__title__bottom">
+            <div class="bottom__left desktop">
+              <h1>
+                <span class="hero__hover">E</span><span class="hero__hover">N</span><span class="hero__hover">G</span><span class="hero__hover">I</span><span class="hero__hover">N</span><span class="hero__hover">E</span><span class="hero__hover">E</span><span class="hero__hover">R</span>
+              </h1>
+            </div>
+            <div class="bottom__right">
+              <p class="hero__paragraph">
+                <span class="first-word">About</span> &nbsp; I'm a security analyst based
+                in Kerala, India focused on threat detection, PCAP forensics, and SIEM engineering.
+                I've analyzed live malware traffic from <span>Bandook RAT,</span>
+                <span>TrickBot,</span> <span>TA551,</span> and <span>WannaCry</span>
+                campaigns during my internship at <span>Gardiyan System Security Technologies.</span>
+              </p>
+              <div class="hero__scroll">
+                <p>Scroll down</p>
+                <svg width="18" height="18" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10.8333 13.9766L15.3033 9.50658L16.4816 10.6849L9.99998 17.1666L3.51831 10.6849L4.69664 9.50658L9.16664 13.9766V3.83325H10.8333V13.9766Z" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </span>
+
+      </div>
+    </section>
+
+    <!-- PROJECTS SECTION 1 -->
+    <section class="home__projects" id="projects-1">
+      <span class="home__projects__line left"><span></span></span>
+
+      <div class="home__projects__project" id="proj-container">
+        <!-- injected by JS from project-data.json -->
+      </div>
+    </section>
+
+    <!-- INTERSTITIAL -->
+    <section class="home__content">
+      <h2 class="home__content__title">BUT HARILAL, HAVE YOU CONSIDERED THE OFFENSIVE SIDE?</h2>
+      <p class="home__content__desc">
+        Definitely. Understanding how attacks work is what sharpens detections.
+        Check out the
+        <a href="https://github.com/HariCipher/File_Upload_Vulnerability_Tester" target="_blank" rel="noopener noreferrer">File Upload Tester</a>
+        — 13/19 DVWA bypasses with verified RCE — and the
+        <a href="https://github.com/HariCipher" target="_blank" rel="noopener noreferrer">Home SOC Lab</a>
+        built for both attack simulation and live detection.
+      </p>
+    </section>
+
+    <!-- AWARDS / CERTS -->
+    <section class="home__awards">
+      <div class="home__awards__left">
+        <h2 class="awards__title">
+          <span>ACCOLADES X </span><br>
+          <span>CERTIFICATIONS</span>
+        </h2>
+        <div class="home__awards__table">
+          <div class="awards__item" data-fade-in>ISC2 Certified in Cybersecurity (CC) — In Progress</div>
+          <div class="awards__item" data-fade-in>SOC Analyst Internship — Gardiyan SST, Turkey 2025–2026</div>
+          <div class="awards__item" data-fade-in>TryHackMe — SOC Analyst Path</div>
+          <div class="awards__item" data-fade-in>LetsDefend — Alert Triage Practice</div>
+          <div class="awards__item" data-fade-in>HackTheBox — Active</div>
+          <div class="awards__item" data-fade-in>DVWA — 13/19 Upload Bypasses · RCE Verified</div>
+          <div class="awards__item" data-fade-in>Splunk — 4 Correlation Rules Built from Scratch</div>
+          <div class="awards__item" data-fade-in>Poornima University CSE — B.Tech 2027</div>
+        </div>
+      </div>
+
+      <div class="home__awards__right">
+        <div data-fade-in>
+          <h2 class="home__content__title">Interests</h2>
+          <p class="home__content__desc">
+            Threat Detection, SIEM Engineering, PCAP Forensics, SOAR Automation,
+            Malware Analysis, MITRE ATT&CK, WAF Bypass, Purple Teaming, CTFs,
+            Bug Bounty, Python Security Tooling<br><br>
+            <a href="https://github.com/HariCipher" target="_blank" rel="noopener noreferrer">See my GitHub</a>
+          </p>
+        </div>
+
+        <div data-fade-in>
+          <h2 class="home__content__title">ICEBREAKERS</h2>
+          <p class="home__content__desc">
+            I spend a lot of time in terminals — both for work and because it's genuinely fun.
+            When I'm not analyzing PCAPs or writing detection logic, I'm building tools
+            that probably have no business existing. Kerala-based, always building,
+            perpetually curious.
+            <button class="contact-scroll" style="background:none;border:none;color:var(--green);font-family:var(--mono);font-size:1.4rem;cursor:none;letter-spacing:0.04em;margin-left:0.5rem">SAY HI</button> if you want to talk shop.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="home__contact" id="contact">
+      <p class="home__contact__desc">
+        Got a role, collaboration, or project? Open to SOC analyst positions,
+        internships, and purple team work. Don't feel shy.
+      </p>
+      <div class="line-wrapper">
+        <span class="home__projects__line left"><span></span></span>
+      </div>
+
+      <div class="marquee">
+        <a href="mailto:thisisharilal@gmail.com?subject=Let%27s%20work%20together!&body=Hello%2C%20I%20think%20we%20need%20you%20to%20work%20on%20something..." class="marquee__wrap">
+          <div class="marquee__inner">
+            <span class="inner-span">LET'S TALK — LET'S COLLABORATE — SAY HELLO — OPEN TO SOC ROLES —</span>
+            <span class="inner-span">LET'S TALK — LET'S COLLABORATE — SAY HELLO — OPEN TO SOC ROLES —</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="line-wrapper">
+        <span class="home__projects__line right"><span></span></span>
+      </div>
+
+      <div class="home__contact__email">
+        <button class="email" id="emailBtn">thisisharilal@gmail.com</button>
+        <div class="to-copy"><span>Click To Copy</span></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="home__footer" id="js-footer">
+      <div class="home__footer__left">
+        <p class="place">Palakkad, Kerala, India</p>
+        <div class="time">
+          <span id="hr"></span><span class="flash">:</span><span id="mn"></span>
+        </div>
+      </div>
+      <div class="home__footer__center">
+        <div class="footer__links">
+          <div class="link__flex">
+            <div class="link__flex__inner">
+              <a href="https://linkedin.com/in/thisisharilal" target="_blank" rel="noopener noreferrer" class="c-button">
+                <span class="c-link"><span class="c-link__inner"><span>LINKEDIN</span><span class="c-link__animated">LINKEDIN</span></span></span>
+              </a>
+              <a href="https://github.com/HariCipher" target="_blank" rel="noopener noreferrer" class="c-button">
+                <span class="c-link"><span class="c-link__inner"><span>GITHUB</span><span class="c-link__animated">GITHUB</span></span></span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="home__footer__right">
+        Copyright © 2026
+        <a href="https://github.com/HariCipher" target="_blank" rel="noopener noreferrer">Harilal P.</a>
+      </p>
+    </footer>
+
+  </main>
+
+  <script>
+    // ── cursor ──
+    const cur = document.getElementById('cur');
+    const curR = document.getElementById('curR');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px';
+      cur.style.top = my + 'px';
+    });
+    (function loop() {
+      rx += (mx - rx) * 0.1;
+      ry += (my - ry) * 0.1;
+      curR.style.left = rx + 'px';
+      curR.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+
+    // ── load projects from JSON ──
+    const SVG_ARROW = `<svg width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 6.9l-6.4 6.4-1.1-1-6.4-6.4H0V5h8.2v8.2H6.9L12 8.1z" fill="currentColor" transform="translate(1,1)"/></svg>`;
+    const SHARE_SVG = `<svg width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9 7l-6.4 6.4-1-1.1 6.4-6.4H5.2V4.4h8.2v8.2h-1.5V7z" fill="#777"/></svg>`;
+
+    fetch('/project-data.json')
+      .then(r => r.json())
+      .then(projects => {
+        const container = document.getElementById('proj-container');
+        container.innerHTML = '';
+        container.parentNode.removeChild(container);
+
+        const section = document.getElementById('projects-1');
+
+        projects.forEach((p, i) => {
+          const side = i % 2 === 0 ? 'right' : 'left';
+          const speed = i % 2 === 0 ? 7 : -7;
+
+          // line
+          const line = document.createElement('span');
+          line.className = `home__projects__line ${i % 2 === 0 ? 'right' : 'left'}`;
+          line.innerHTML = '<span></span>';
+          section.appendChild(line);
+
+          // project row
+          const row = document.createElement('div');
+          row.className = 'home__projects__project';
+          row.innerHTML = `
+            <div class="home__projects__project__label">
+              <div class="label__inner ${i === 0 ? 'label-1' : ''}">
+                ${i === 0 ? `<p>FEATURED <br> PROJECTS (${projects.length})</p>` : ''}
+                <p>${p.role}</p>
+              </div>
+            </div>
+            <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="home__projects__project__link">
+              <h1 class="home__projects__project__title">
+                <span class="inline-ovh">
+                  <div class="title__main ${side}">
+                    <span class="slide-up" data-content="${p.title}" aria-hidden="true"></span>
+                    ${p.title}
+                  </div>
+                </span>
+              </h1>
+            </a>
+            <div class="project__link">
+              <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="c-button">
+                <span class="c-link"><span class="c-link__inner">
+                  <span>Visit Site <span class="share-icon">${SHARE_SVG}</span></span>
+                </span></span>
+              </a>
+            </div>`;
+          section.appendChild(row);
+        });
+
+        // final line
+        const lastLine = document.createElement('span');
+        lastLine.className = 'home__projects__line left';
+        lastLine.innerHTML = '<span></span>';
+        section.appendChild(lastLine);
+
+        // re-observe new elements
+        observeAll();
+      })
+      .catch(() => {
+        // fallback: hide project section if JSON fails
+        document.getElementById('projects-1').style.display = 'none';
+      });
+
+    // ── intersection observers ──
+    function observeAll() {
+      const lineObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('animated');
+            lineObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      document.querySelectorAll('.home__projects__line').forEach(el => lineObs.observe(el));
+
+      const fadeObs = new IntersectionObserver(entries => {
+        entries.forEach((e, idx) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('visible'), idx * 80);
+            fadeObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('[data-fade-in], .awards__item').forEach(el => fadeObs.observe(el));
+    }
+    observeAll();
+
+    // ── contact scroll ──
+    document.querySelectorAll('.contact-scroll').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // ── email copy ──
+    const toast = document.getElementById('toast');
+    document.getElementById('emailBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText('thisisharilal@gmail.com').then(() => {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+      });
+    });
+
+    // ── live time (IST = UTC+5:30) ──
+    function updateTime() {
+      const now = new Date();
+      const ist = new Date(now.getTime() + (5.5 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
+      document.getElementById('hr').textContent = String(ist.getHours()).padStart(2, '0');
+      document.getElementById('mn').textContent = String(ist.getMinutes()).padStart(2, '0');
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // ── ready ──
+    window.addEventListener('load', () => document.body.classList.add('ready'));
+  </script>
+</body>
+</html>

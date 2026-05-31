@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "File Upload Security Tester",
+    "role": "Purple Team / <br /> Offensive Tooling",
+    "description": "Python tool testing file upload controls across 20+ bypass scenarios. Extension spoofing, null bytes, MIME confusion, path traversal, Unicode edge cases. 13/19 DVWA bypasses with verified RCE via webshell. WAF fingerprinting for Cloudflare, ModSecurity, AWS WAF. Multi-threaded via concurrent.futures — 5× faster than sequential.",
+    "link": "https://github.com/HariCipher/File_Upload_Vulnerability_Tester"
+  },
+  {
+    "id": 2,
+    "title": "Home SOC Lab",
+    "role": "Detection Engineering / <br /> Lab Infrastructure",
+    "description": "Production-grade dual-purpose lab for detection engineering and attack simulation. Wazuh v4.7.0 + Splunk Enterprise for live detection and log correlation. Docker-isolated attack targets: DVWA, OWASP Juice Shop, Metasploitable2. Startup time reduced from 30 min to under 2 min via automation scripts.",
+    "link": "https://github.com/HariCipher"
+  },
+  {
+    "id": 3,
+    "title": "Bandook RAT C2 Analysis",
+    "role": "Network Forensics / <br /> Threat Intelligence",
+    "description": "Real-world PCAP analysis of Bandook RAT C2 communication. Identified dual-infrastructure C2: hardcoded primary IP 185.10.68.52 contacted 37 min before DNS resolution. Extracted full IOC set — base64-encoded custom TCP beaconing on port 6591. All TTPs mapped: T1071, T1571, T1573, T1568.",
+    "link": "https://github.com/HariCipher"
+  }
+]
